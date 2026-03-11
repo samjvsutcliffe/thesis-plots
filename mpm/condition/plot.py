@@ -26,9 +26,10 @@ width = 1*5.90666
 height = width / 1.4
 plt.figure(figsize=(width,height))
 
+offset = 0.01
 output_dir = "data.csv"
 df = pd.read_csv(output_dir)
-x = df["X"].values
+x = df["X"].values+offset
 ma = df["MA"].values
 mii = df["M-LUMPED"].values
 plt.plot(x+0.5,ma,label="Aggregate")
@@ -36,7 +37,7 @@ plt.plot(x+0.5,mii,label="Lumped")
 
 
 df = pd.read_csv("data_1e-15.csv")
-x = df["X"].values
+x = df["X"].values+offset
 ma = df["MA"].values
 mii = df["M-LUMPED"].values
 plt.plot(x+0.5,mii,label="Filtered lumped $f_m = 10^{-15}$")
