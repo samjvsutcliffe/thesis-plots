@@ -208,3 +208,8 @@ __marimo__/
 *.pdf
 *.pgf
 *.png
+
+*.vtk
+*.csv
+output-*/
+*.swp
