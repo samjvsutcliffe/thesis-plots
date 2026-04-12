@@ -85,7 +85,7 @@ plt.rc('font', family='serif', serif='Times')
 plt.rc('xtick', labelsize=8)
 plt.rc('ytick', labelsize=8)
 plt.rc('axes', labelsize=8)
-width = 0.49*5.90666
+width = 0.1*5.90666
 height = width / 1
 
 chalk_dir ="./data/"
@@ -106,13 +106,14 @@ for output_name in output_list:
     files_csvs.sort(key=int)
     print("files: {}".format(files_csvs))
 
-    xlim = [0,0.24]
-    ylim = [0,0.2]
+    trim = 80e-3
+    xlim = [0+trim,0.24-trim]
+    ylim = [0,0.18]
 
     aspect = (xlim[1]-xlim[0])/(ylim[1]-ylim[0])
 
     def get_plot(i):
-        fig = plt.figure(figsize=(width,height),dpi=200)
+        fig = plt.figure(figsize=(width,height/aspect),dpi=200)
         fname = files_csvs[i]
         df = get_data_all(output_dir,fname)
         print("Plot frame {}".format(i),flush=True)
@@ -155,7 +156,7 @@ for output_name in output_list:
             tick.label1.set_visible(False)
             tick.label2.set_visible(False)
 
-        #plt.axis('off')
+        plt.axis('off')
         ax.grid(color='grey',which="both", linestyle='-',lw=0.1)
         #plt.tight_layout()
         plt.savefig("outframes/frame_{}_{:05}.pgf".format(output_name,i),dpi=1000)

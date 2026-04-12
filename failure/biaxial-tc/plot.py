@@ -23,7 +23,7 @@ mpl.rcParams.update(
         'figure.constrained_layout.use':True
     }
 )
-width = 0.49*5.90666
+width = 0.6*5.90666
 height = width / 1.4
 plt.figure(figsize=(width,height))
 
@@ -52,6 +52,7 @@ def get_load(filename):
 
 folders.sort()
 print(folders)
+folders = ["output-C-MC-30.0-4.0", "output-T-MC-30.0-4.0",]
 
 for i in folders:
     print("loading folder: ",i)
@@ -64,6 +65,6 @@ for i in folders:
 plt.xlabel("Displacement (mm)")
 plt.ylabel("Load (N)")
 #plt.legend()
-# plt.legend(["Coarse","Medium","Fine"])
+plt.legend(["Compression","Tension"])
 plt.savefig("paper.pgf")
 plt.show()
