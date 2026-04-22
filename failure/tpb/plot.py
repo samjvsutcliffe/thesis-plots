@@ -1,0 +1,95 @@
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import pandas as pd
+import os
+import numpy as np
+import re
+
+from scipy import integrate
+
+plt.style.use("seaborn-paper")
+plt.rc('font', family='serif', serif='Times')
+plt.rc('xtick', labelsize=8)
+plt.rc('ytick', labelsize=8)
+plt.rc('axes', labelsize=8)
+
+mpl.rcParams.update(
+    {
+        "pgf.texsystem": "pdflatex",
+        "font.family": "serif",
+        "text.usetex": True,
+        "pgf.rcfonts": False,
+        'figure.constrained_layout.use':True
+    }
+)
+width = 1*5.90666
+height = width / 1.4
+plt.figure(figsize=(width,height))
+
+def extract_vals(f):
+    output,refine,load = f.split("-")
+    #refine = float(refine)
+    return refine,float(load)
+
+from scipy import integrate
+def calculate_gf(disp,load):
+    return integrate.trapz(load,disp)/(0.102*0.6*13e-3)
+
+top_dir = "./data/tpb/gf_24/"
+#top_dir = "./paper-1/damage-mc/"
+regex = re.compile(r'^output.*')
+folders = list(filter(regex.search,os.listdir(top_dir)))
+
+plt.figure(1)
+
+# load_zeroing = True
+load_zeroing = False
+# load_combined = True
+load_combined = False
+load_clipping = False
+
+data = pd.read_csv("load-disp.csv")
+#data = pd.read_csv("data_0.051.csv")
+
+def get_load(filename):
+    mpm = pd.read_csv(top_dir+filename)
+    # data = pd.read_csv("load-disp.csv")
+    # mpm = pd.read_csv("output/disp.csv")
+    # plt.plot(data["disp"],data["load"],label="Data")
+    # plt.plot(-1*mpm["disp"],0.012*mpm["load"],label="MPM")
+    mpm["disp"] = mpm["disp"]
+    mpm["load"] = mpm["load"]
+    if load_clipping:
+        mpm = mpm[mpm["disp"] >= 0.01e-3]
+    if len(mpm["load"]) > 0:
+        if load_zeroing:
+            mpm["load"] = mpm["load"] - mpm["load"].values[0]
+        mpm["stress"] = mpm["load"] / (0.06 - mpm["disp"])
+    return mpm
+
+print("GF experimental:",calculate_gf(1e-3*data["disp"],data["load"]))
+folders.sort()
+plt.plot(data["disp"].values,data["load"].values,label="Experimental data")
+print(folders)
+#folders = ['output-adaptive-1.0-3.0', 'output-adaptive-2.0-3.0', 'output-adaptive-3.0-3.0', 'output-adaptive-4.0-3.0', 'output-adaptive-6.0-3.0', 'output-adaptive-8.0-3.0']
+folders = ['output-adaptive-1.0-3.0', 'output-adaptive-2.0-3.0', 'output-adaptive-4.0-3.0']
+for i in folders:
+    print("loading folder: ",i)
+    mpm = get_load("./{}/disp.csv".format(i))
+    if len(mpm["load"]) > 0:
+        #if load_zeroing:
+        #    mpm["load"] = mpm["load"] - mpm["load"].values[0]
+        #l=plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
+        plt.plot(-1e3*mpm["disp"].values,0.013*mpm["load"].values,label=i,marker="x")
+        # plt.plot(-1e3*mpm["disp"].values,0.012mpm["load"].values,label=i)
+        print("GF ",i," :",calculate_gf(-1*mpm["disp"],13e-3*mpm["load"]))
+        # plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load-diff"].values,label=i,marker="x",c=l[0].get_color())
+        #print("Shear modulus {}GPa".format(1e-9*mpm["load"].max()/mpm["disp"].values[mpm["load"].argmax()]))
+        maxload = (1e-3/0.06)*mpm["load"].max()
+
+plt.xlabel("Displacement (mm)")
+plt.ylabel("Load (N)")
+plt.legend(["Experimental data","Coarse","Medium","Fine"])
+plt.savefig("tpb.pgf")
+plt.show()
