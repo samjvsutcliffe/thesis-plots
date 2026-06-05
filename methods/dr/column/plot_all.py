@@ -91,7 +91,7 @@ def plot_tri(offset,size):
     # plt.plot(x,y)
 
 plot_tri([0.5,-3.5],[1,1])
-plot_tri([-0.5,-2],[1,2])
+plot_tri([-0.4,-2.3],[1,2])
 
 
 plt.legend()
