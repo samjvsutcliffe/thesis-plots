@@ -64,7 +64,7 @@ def get_data(filename):
     lx = GetScalar("size_x")
     ly = GetScalar("size_y")
     dx = GetScalar("disp_x")
-    damage = GetScalar("eps_xx")*1e2
+    damage = GetScalar("damage") #*1e2
     damage_ybar = GetScalar("damage-ybar")
     #damage = GetScalar("plastic_strain")
     #damage = GetScalar("damage")
@@ -111,29 +111,30 @@ def get_damage(output_dir,i):
         dy.append(damage_ybar)
     return (x,d,dy)
 plt.close("all")
-def plot_2d(i):
-    plt.clf()
+def plot_2d(dir_name,i):
+    # plt.clf()
+    # fig =plt.figure(figsize=(width,height))
     plt.xlim(0,10)
     plt.ylim(0,1.1)
     #(x,d,dy) = get_damage("./data/output-1/",i)
     #plt.plot(x,d,marker="o")
     #(x,d,dy) = get_damage("./data/output-2/",i)
     #plt.plot(x,d,marker="o")
-    (x,d,dy) = get_damage("./data/output-4/",i)
-    plt.plot(x,d,marker="o")
+    (x,d,dy) = get_damage("./data/{}/".format(dir_name),i)
+    plt.plot(x,d,marker="o",label=dir_name)
     x = np.array(x)
     d = np.array(d)
-    plt.plot(x,weight_function(x-5.0,1*1.0)*np.max(d))
+    # plt.plot(x,weight_function(x-5.0,1*1.0)*np.max(d))
     plt.xlabel("Reference position (m)")
     plt.ylabel("Damage")
-    plt.savefig("paper_2d.pgf")
-    plt.show()
+    # plt.savefig("paper_2d_{}.pdf".format(dir_name))
+    # plt.show()
 
 def plot_3d(dir_name,ivals):
     odir = "./data/{}/".format(dir_name)
     width = 1*5.90666
     height = width / 1.4
-    fig =plt.figure(figsize=(width,height))
+    fig = plt.figure(figsize=(width,height))
     plt.clf()
     plt.gcf().add_subplot(projection='3d',computed_zorder=True)
     ax = plt.gca()
@@ -195,14 +196,21 @@ def plot_3d_surface(odir,ivals):
 def weight_function(dist,L):
     return np.power(1-np.power(np.minimum(np.abs(dist),L)/L,2),2)
 
-width = 0.49*5.90666
+width = 1*5.90666
 height = width / 1.4
 fig =plt.figure(figsize=(width,height))
 # get_plot(10)
-# plot_2d(39)
+folder_list = os.listdir("./data/")
+print(folder_list)
+folder_list = ['output-standard','output-ll',  'output-ll-standard', 'output-ekl']
+fig =plt.figure(figsize=(width,height))
+for o in folder_list:
+    plot_2d(o,-1)
+plt.legend(["Constant length", "Novel damage localisation", "Standard damage localisation", "Eikonal localisation"])
+plt.savefig("fig_damage.pdf")
 #plot_3d([0, 9, 19, 29, 39, 49])
-plot_3d("output-ll",[0, 9, 19, 29, 39, 49])
-plot_3d("output-ekl",[0, 9, 19, 29, 39, 49])
-plot_3d("output-standard",[0, 9, 19, 29, 39, 49])
+# plot_3d("output-ll",[0, 9, 19, 29, 39, 49])
+# plot_3d("output-ekl",[0, 9, 19, 29, 39, 49])
+# plot_3d("output-standard",[0, 9, 19, 29, 39, 49])
 plt.show()
 # plot_3d_surface([x for x in range(0,49,2)])
