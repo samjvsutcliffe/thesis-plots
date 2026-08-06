@@ -37,7 +37,7 @@ for output_name in output_list:
 
 plt.xlabel("Displacement (m)")
 plt.ylabel("Force (kN)")
-plt.legend()
+# plt.legend()
 plt.savefig("outframes/load.pdf".format(),dpi=1000)
 plt.show()
 

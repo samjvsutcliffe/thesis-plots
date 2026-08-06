@@ -8,7 +8,7 @@ import mpmplotter.load
 from numpy.linalg import eig,eigh
 import numpy as np
 
-def plot(folder_data,frame_number,colour_name="sig_xx"):
+def plot(folder_data,frame_number,colour_name="sig_xx",df_transform=lambda x: x):
     fig = plt.gcf()
     ax = fig.add_subplot(111,aspect="equal")
     # loc = plticker.MultipleLocator(base=0.25)

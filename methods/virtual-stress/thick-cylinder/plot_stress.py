@@ -29,7 +29,7 @@ from matplotlib import cm
 from multiprocessing import Pool
 plt.style.use("seaborn-paper")
 plt.rc('font', family='serif', serif='Times')
-# plt.rc('text', usetex=True)
+plt.rc('text', usetex=True)
 plt.rc('xtick', labelsize=8)
 plt.rc('ytick', labelsize=8)
 plt.rc('axes', labelsize=8)
@@ -136,7 +136,7 @@ for output_name in output_list:
         p.set_array(df["damage"])
         # p.set_clim([-1e6,1e6])
         ax.add_collection(p)
-        fig.colorbar(p,location="bottom",label="sig_{xy}")
+        fig.colorbar(p,location="bottom",label="$\sigma_{xy}$ (Pa)")
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
 

@@ -41,7 +41,7 @@ def extract_vals(f):
 #top_dir = "./plastic-damage-residual/"
 # top_dir = "/nobackup/rmvn14/paper-1/plastic-damage-residual/"
 top_dir = "./data/"
-regex = re.compile(r'^output-16.0.*')
+regex = re.compile(r'^output-16.0_0.5_4_1000.0.*')
 folders = list(filter(regex.search,os.listdir(top_dir)))
 
 print(folders)
@@ -71,15 +71,17 @@ def get_load(filename):
     mpm = pd.read_csv(top_dir+filename)
     if load_clipping:
         mpm = mpm[mpm["disp"] >= 0.01e-3]
-    
     if len(mpm["load"]) > 0:
-        mpm = mpm[mpm["disp"]<3e-3]
-        # mpm["load-diff"] = mpm["l-left"] + mpm["l-right"]
-        if load_combined:
-            mpm["load"] = mpm["load-diff"]
         if load_zeroing:
             mpm["load"] = mpm["load"] - mpm["load"].values[0]
-        mpm["stress"] = mpm["load"] / (0.06 - mpm["disp"])
+    # if len(mpm["load"]) > 0:
+    #     mpm = mpm[mpm["disp"]<3e-3]
+    #     # mpm["load-diff"] = mpm["l-left"] + mpm["l-right"]
+    #     if load_combined:
+    #         mpm["load"] = mpm["load-diff"]
+    #     if load_zeroing:
+    #         mpm["load"] = mpm["load"] - mpm["load"].values[0]
+    #     mpm["stress"] = mpm["load"] / (0.06 - mpm["disp"])
     return mpm
 
 E = 1e9
@@ -155,15 +157,15 @@ for colour,unique_id in zip(colours,unique_ids):
                 #    mpm["load"] = mpm["load"] - mpm["load"].values[0]
                 width = 0.06
                 p = mpm["load"].max()/width
-                r = mpm["load"].values[-1]/width
+                residual_window = 0.10
+                residual_back = round(len(mpm["load"].values) * (1 - residual_window))
+                r = mpm["load"].values[residual_back:].mean()/width
                 #residual_window = 0.25
                 #residual_back = round(len(mpm["load"].values) * (1 - residual_window))
                 #r = mpm["load"].values[residual_back:].mean()/width
                 surcharge.append(load)
                 peak.append(p)
                 residual.append(r)
-                # plt.scatter(load,r)
-                # plt.scatter(load,p)
 
     if len(peak) > 0:
         peak = [x for y, x in sorted(zip(surcharge, peak))]
@@ -177,8 +179,11 @@ for colour,unique_id in zip(colours,unique_ids):
         #p = plt.plot(surcharge,peak,color=colour)
         #plt.axline((0,b),slope=m,c=p[0].get_color())
         m,b = np.polyfit(surcharge, residual, 1)
-        #plt.scatter(surcharge,residual,label="Residual - {} - $\SI{{{:.2f}}}{{\degree}}$, $\SI{{{:.2f}}}{{\kilo\pascal}}$".format(unique_id,np.arctan(m)*180/np.pi,b*1e-3),color=colour,marker="x")
-        plt.scatter(surcharge,residual,label="Residual - {} - {:.2f} deg, {:.2f} kPa".format(unique_id,np.arctan(m)*180/np.pi,b*1e-3),color=colour,marker="x") # r = plt.plot(surcharge,residual,color=colour,ls="--")
+        # m,b = np.polyfit(surcharge, peak, 1)
+        # plt.scatter(surcharge,residual,label="Residual - {} - {:.2f} deg, {:.2f} kPa".format(unique_id,np.arctan(m)*180/np.pi,b*1e-3),color=colour,marker="x") # r = plt.plot(surcharge,residual,color=colour,ls="--")
+        plt.scatter(surcharge,residual,label="{}".format(unique_id),color=colour,marker="x") # r = plt.plot(surcharge,residual,color=colour,ls="--")
+        print("{}, phi = {}, c = {}".format(unique_id,np.arctan(m)*180/np.pi,b*1e-3))
+
         plt.axline((0,b),slope=m,c=colour,ls="--")
 
         plt.axline((0,0),slope=np.tan(30 * np.pi/180),ls="-")

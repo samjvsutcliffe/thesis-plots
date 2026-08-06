@@ -9,13 +9,6 @@ import re
 
 from scipy import integrate
 PDF_OUTPUT = False
-
-
-#plt.rc('font', family='serif', serif='Times')
-## plt.rc('text', usetex=True)
-#plt.rc('xtick', labelsize=8)
-#plt.rc('ytick', labelsize=8)
-#plt.rc('axes', labelsize=8)
 plt.style.use("seaborn-paper")
 plt.rc('font', family='serif', serif='Times')
 # plt.rc('text', usetex=True)

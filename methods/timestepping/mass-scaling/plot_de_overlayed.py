@@ -1,3 +1,4 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
@@ -6,11 +7,19 @@ import os
 
 plt.style.use("seaborn-paper")
 plt.rc('font', family='serif', serif='Times')
-# plt.rc('text', usetex=True)
 plt.rc('xtick', labelsize=8)
 plt.rc('ytick', labelsize=8)
 plt.rc('axes', labelsize=8)
-plt.rcParams['figure.constrained_layout.use'] = True
+
+mpl.rcParams.update(
+    {
+        "pgf.texsystem": "pdflatex",
+        "font.family": "serif",
+        "text.usetex": True,
+        "pgf.rcfonts": False,
+        'figure.constrained_layout.use':True
+    }
+)
 
 top_dir = "./data/"
 output_regex = re.compile("output-*")
@@ -20,8 +29,9 @@ for i,out in enumerate(output_list):
     print("{}: {}".format(i,out))
 
 
-fig = plt.figure()
-ax = fig.gca()
+width = 1*5.90666
+height = width / 2
+fig = plt.figure(figsize=(width,height))
 lines = ["dotted","dashed","dashdot",":","-"]
 for ls,outdir in zip(lines,output_list):
     output_dir = "{}./{}/".format(top_dir,outdir)
@@ -33,6 +43,12 @@ for ls,outdir in zip(lines,output_list):
 
 plt.xlabel("Time (s)")
 plt.ylabel("Mass-damage (Kg)")
-plt.legend()
+plt.legend(["Mass scaling: $s = 1$",
+"Mass scaling: $s = 10$",
+"Mass scaling: $s = 100$",
+"Adaptive mass scaling",
+"Quasi-static stepping",
+]
+            )
 plt.savefig("damage-time.pdf")
 plt.show()

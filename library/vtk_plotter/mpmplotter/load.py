@@ -27,15 +27,20 @@ def get_data(filename,colour_name="sig_xx"):
     lx = GetScalar("size_x")
     ly = GetScalar("size_y")
 
-    lxx = GetScalar("size_xx")
-    lyy = GetScalar("size_yy")
-    lxy = GetScalar("size_xy")
-    lyx = GetScalar("size_yx")
+    lxx = GetScalar("size_x")
+    lyy = GetScalar("size_y")
+    lxy = GetScalar("size_x")
+    lyx = GetScalar("size_y")
+    # lxx = GetScalar("size_xx")
+    # lyy = GetScalar("size_yy")
+    # lxy = GetScalar("size_xy")
+    # lyx = GetScalar("size_yx")
 
     damage = GetScalar(colour_name)
     uid = GetScalar("unique-id")
     return pd.DataFrame({"coord_x":xy[:,0], "coord_y":xy[:,1],"lx":lx,"ly":ly,"colour":damage,"uid":uid,
-                         "lxx":lxx,"lyy":lyy,"lxy":lxy,"lyx":lyx})
+                         "lxx":lxx,"lyy":lyy,"lxy":lxy,"lyx":lyx
+                         })
 
 def get_data_all(folder,frame_number,colour_name="sig_xx"):
     print(frame_number)
