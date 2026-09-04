@@ -8,15 +8,10 @@ import mpmplotter.load
 from numpy.linalg import eig,eigh
 import numpy as np
 
-def plot(folder_data,frame_number,colour_name="sig_xx",df_transform=lambda x: x):
+
+def raw_plot(folder_data,df,colour_name="sig_xx"):
     fig = plt.gcf()
     ax = fig.add_subplot(111,aspect="equal")
-    # loc = plticker.MultipleLocator(base=0.25)
-    # ax.xaxis.set_major_locator(loc)
-    # locy = plticker.MultipleLocator(base=0.25)
-    # ax.yaxis.set_major_locator(locy)
-    # ax.set_axisbelow(True)
-    df = mpmplotter.load.get_data_all(folder_data["folder"],folder_data["frames"][frame_number],colour_name=colour_name)
     patch_list=[]
     for a_x, a_y,lx,ly,damage in zip(df["coord_x"],
                                      df["coord_y"],
@@ -37,6 +32,10 @@ def plot(folder_data,frame_number,colour_name="sig_xx",df_transform=lambda x: x)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     return p
+
+def plot(folder_data,frame_number,colour_name="sig_xx",extract_vals=[],df_transform=lambda x: x):
+    df = mpmplotter.load.get_data_all(folder_data["folder"],folder_data["frames"][frame_number],colour_name=colour_name,extract_vals=extract_vals)
+    return raw_plot(folder_data,df_transform(df),colour_name)
 
 
 def plot_outline(folder_data,frame_number):

@@ -7,7 +7,7 @@ import re
 import os
 import json
 
-def get_data(filename,colour_name="sig_xx"):
+def get_data(filename,colour_name="sig_xx",extract_vals=[]):
     reader = vtkUnstructuredGridReader()
     reader.SetFileName(filename)
     reader.ReadAllVectorsOn()
@@ -38,21 +38,32 @@ def get_data(filename,colour_name="sig_xx"):
 
     damage = GetScalar(colour_name)
     uid = GetScalar("unique-id")
-    return pd.DataFrame({"coord_x":xy[:,0], "coord_y":xy[:,1],"lx":lx,"ly":ly,"colour":damage,"uid":uid,
-                         "lxx":lxx,"lyy":lyy,"lxy":lxy,"lyx":lyx
-                         })
+    output_data = {
+        "coord_x":xy[:,0],
+        "coord_y":xy[:,1],
+        "lx":lx,"ly":ly,
+        "colour":damage,
+        "uid":uid,
+        "lxx":lxx,
+        "lyy":lyy,
+        "lxy":lxy,
+        "lyx":lyx
+    }
+    for v in extract_vals:
+        output_data[v] = GetScalar(v)
+    return pd.DataFrame(output_data)
 
-def get_data_all(folder,frame_number,colour_name="sig_xx"):
+def get_data_all(folder,frame_number,colour_name="sig_xx",extract_vals=[]):
     print(frame_number)
     regex = re.compile(r'sim(_\d+)?_{}.vtk'.format(frame_number))
     files = list(filter(regex.search,os.listdir(folder)))
-    subframes = [get_data(folder + "/" + f,colour_name) for f in files]
+    subframes = [get_data(folder + "/" + f,colour_name,extract_vals) for f in files]
     df = pd.concat(subframes)
     return df
 
 
-def load_data(folder_data,frame_number,colour_name="sig_xx"):
-    return get_data_all(folder_data["folder"],folder_data["frames"][frame_number],colour_name)
+def load_data(folder_data,frame_number,colour_name="sig_xx",extract_vals=[]):
+    return get_data_all(folder_data["folder"],folder_data["frames"][frame_number],colour_name,extract_vals)
 
 def load_folder(folder):
     settings_file = "{}/settings.json".format(folder)
