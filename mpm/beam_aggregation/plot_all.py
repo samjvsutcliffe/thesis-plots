@@ -61,8 +61,8 @@ def get_data(filename):
     #scalar_names = scalar_data.GetArrayNames()
     def GetScalar(scalar_name):
         return vtk_to_numpy(scalar_data.GetArray(scalar_names.index(scalar_name)))
-    lx = GetScalar("size_x") 
-    ly = GetScalar("size_y") 
+    lx = GetScalar("size_x")
+    ly = GetScalar("size_y")
     damage = GetScalar("sig_xx")
     #damage = GetScalar("plastic_strain")
     return pd.DataFrame({"coord_x":xy[:,0], "coord_y":xy[:,1],"lx":lx,"ly":ly,"damage":damage})
@@ -116,6 +116,8 @@ for output_name in output_list:
         df = get_data_all(output_dir,fname)
         print("Plot frame {}".format(i),flush=True)
         ax = fig.add_subplot(111,aspect="equal")
+
+
         loc = plticker.MultipleLocator(base=0.25)
         ax.xaxis.set_major_locator(loc)
         locy = plticker.MultipleLocator(base=0.25)
@@ -123,26 +125,23 @@ for output_name in output_list:
         ax.set_axisbelow(True)
         patch_list=[]
         for a_x, a_y,lx,ly,damage in zip(df["coord_x"],
-                                         df["coord_y"],
-                                         df["lx"],
-                                         df["ly"],
-                                         df["damage"]):
+                                        df["coord_y"],
+                                        df["lx"],
+                                        df["ly"],
+                                        df["damage"]):
             patch = Rectangle(
                 xy=(a_x-lx/2, a_y-ly/2) ,width=lx, height=ly,
                 fill=damage)
             patch_list.append(patch)
-        #p = PatchCollection(patch_list,fc="none",ec="black")
         p = PatchCollection(patch_list, cmap=cm.jet, alpha=1)
         p.set_array(df["damage"])
         p.set_clim([-1e6,1e6])
         ax.add_collection(p)
-        #fig.colorbar(p,location="bottom",label="sig_{xx}")
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
 
         ax.set_yticklabels([])
         ax.set_xticklabels([])
-
         for tick in ax.xaxis.get_major_ticks():
             tick.tick1line.set_visible(False)
             tick.tick2line.set_visible(False)
@@ -154,11 +153,30 @@ for output_name in output_list:
             tick.label1.set_visible(False)
             tick.label2.set_visible(False)
 
-        #plt.axis('off')
         ax.grid(color='grey',which="both", linestyle='-',lw=0.1)
-        #plt.tight_layout()
+
+        x1, x2, y1, y2 = 2.5, 3.5, 8.5, 9.5
+        axins = ax.inset_axes([0.65, 0.65, 0.3, 0.3], xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])
+        ax.indicate_inset_zoom(axins, edgecolor="black")
+
+        ax = axins
+        loc = plticker.MultipleLocator(base=0.25)
+        ax.xaxis.set_major_locator(loc)
+        locy = plticker.MultipleLocator(base=0.25)
+        ax.yaxis.set_major_locator(locy)
+        ax.yaxis.set_major_locator(locy)
+        ax.set_axisbelow(True)
+        p = PatchCollection(patch_list, cmap=cm.jet, alpha=1)
+        p.set_array(df["damage"])
+        p.set_clim([-1e6,1e6])
+        ax.add_collection(p)
+        # ax.set_xlim(xlim)
+        # ax.set_ylim(ylim)
+
+
         plt.savefig("outframes/frame_{}_{:05}.pgf".format(output_name,i),dpi=1000)
         plt.savefig("outframes/frame_{}_{:05}.png".format(output_name,i),dpi=1000)
+        plt.savefig("outframes/frame_{}_{:05}.pdf".format(output_name,i),dpi=1000)
         plt.clf()
         #plt.show()
     if not os.path.isdir("./outframes/"):

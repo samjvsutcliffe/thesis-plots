@@ -35,8 +35,8 @@ plt.figure(figsize=(width,height))
 
 top_dir = "./results/"
 
-plt.plot(0,0,ls="--",c="black",label="Standard")
-plt.plot(0,0,ls="-",c="black",label="F-bar")
+line_standard, = plt.plot(0,0,ls="--",c="black",label="Standard")
+line_fbar, = plt.plot(0,0,ls="-",c="black",label="F-bar")
 
 colours = ["C0","C1","C2","C3","C4","C5","C6","C7","C8","C9"]
 
@@ -62,9 +62,19 @@ for r,c in zip(output_list,colours):
     plt.plot(data["disp"].values*-1e3,load_scale*data["load"].values,ls="-",c=c)
 
 analytic_solution = 2+np.pi
-plt.axhline(analytic_solution,ls="-.",c="black",label="Analytic")
+line_analytic = plt.axhline(analytic_solution,ls="-.",c="black",label="Analytic")
+line_h1, = plt.plot(0,0,ls="-",c="C0",label="Coarse")
+line_h2, = plt.plot(0,0,ls="-",c="C1",label="Medium")
+line_h3, = plt.plot(0,0,ls="-",c="C2",label="Fine")
 
-plt.legend()
+#lines = axes.get_lines()
+ax = plt.gca()
+legend1 = ax.legend(handles=[line_analytic,line_standard,line_fbar], loc="upper left")
+ax.add_artist(legend1)
+# legend2 = ax.legend(handles=[line_h1,line_h2,line_h3],["Coarse","Medium","Fine"], loc=4)
+legend2 = ax.legend(handles=[line_h1,line_h2,line_h3], loc=4)
+ax.add_artist(legend2)
+# plt.legend()
 plt.xlabel("Displacement (mm)")
 plt.ylabel("Normalised Load")
 plt.xlim(0,2)

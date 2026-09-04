@@ -56,9 +56,11 @@ for odir in folders:
     data = pd.read_csv("{}/{}/disp.csv".format(top_dir,odir))
     # values = r[:-4].split("_")
     plt.plot(data["disp"].values*1e3,load_scale*data["load"].values,ls="-")#,label="refine: {}".format(r[:-3].split("_")[-1]))
-plt.legend(["Penalty scale $$\\num{1e0}$$",
-"Penalty scale $$\\num{1e-1}$$",
-"Penalty scale $$\\num{1e-2}$$"
+plt.legend([
+    "Limiting force",
+    "Penalty scale $$\\num{1e0}$$",
+    "Penalty scale $$\\num{1e-1}$$",
+    "Penalty scale $$\\num{1e-2}$$"
             ])
 plt.xlabel("Displacement (mm)")
 plt.ylabel("Normalised frictional force")
