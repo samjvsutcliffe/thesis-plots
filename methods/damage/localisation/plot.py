@@ -23,8 +23,8 @@ mpl.rcParams.update(
         'figure.constrained_layout.use':True
     }
 )
-width = 5.90666
-height = width / 1.7
+width = 0.75*5.90666
+height = width / 1.5
 plt.figure(figsize=(width,height))
 
 from scipy import integrate

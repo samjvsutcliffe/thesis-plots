@@ -49,16 +49,17 @@ def plot_interaction(dir_name):
     df = mpmplotter.load.load_data(data,-1,"damage")
     i = (df["coord_x"]-4.8).abs().argmin()
     uid = int(df["uid"][i])
-    fig = plt.figure(figsize=(scale*width,scale*height),dpi=200)
-    fig,ax = plt.subplots()
+
+    fig = plt.figure(figsize=(scale*width,scale*height))
+    ax = plt.gca()
+    # fig,ax = plt.subplots()
     ax_inter = ax.twinx()
     ax.plot(df["coord_x"].values,df["colour"].values)
     inter_list.sort(key=lambda x: int(x.split(".")[0].split("_")[-1]))
     # inter_list = ["interaction_{}.csv".format(uid)]
     for i in inter_list[1::3*2]:
         interaction_data = pd.read_csv("./data/{}/{}".format(dir_name,i))
-        print(interaction_data)
-        plt.plot(interaction_data["x"].values,interaction_data["w"].values,ls="-",c="black")
+        ax_inter.plot(interaction_data["x"].values,interaction_data["w"].values,ls="-",c="black")
     # plt.title(topdir)
     ax.set_xlabel("Location (m)")
     ax.set_ylabel("Damage (m)")

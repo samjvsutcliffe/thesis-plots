@@ -1,11 +1,11 @@
 import matplotlib as mpl
+mpl.use("pgf")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 import os
 import numpy as np
 import re
-#mpl.use("pdf")
 
 from scipy import integrate
 
@@ -24,6 +24,11 @@ mpl.rcParams.update(
         "font.family": "serif",
         "text.usetex": True,
         "pgf.rcfonts": False,
+        "pgf.preamble": "\n".join([
+        r"\usepackage[utf8]{inputenc}",
+        r"\usepackage[T1]{fontenc}",
+        r"\usepackage[detect-all]{siunitx}",
+        ])
     }
 )
 width = 0.5*5.90666
@@ -103,11 +108,11 @@ for i in folders:
     if len(mpm["load"]) > 0:
         #if load_zeroing:
         #    mpm["load"] = mpm["load"] - mpm["load"].values[0]
-        l=plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
+        # l=plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
         maxload = (1e-3/0.06)*mpm["load"].max()
-plt.xlabel("Displacement (mm)")
-plt.ylabel("Shear stress (kPa)")
-plt.legend(names)
+# plt.xlabel("Displacement (mm)")
+# plt.ylabel("Shear stress (kPa)")
+# plt.legend(names)
 
 fig = plt.figure(figsize=(width,height),dpi=200)
 for i in folders:
@@ -124,21 +129,12 @@ for i in folders:
         maxd=mpm["damage"].max()
         maxp=0.1e0
         maxd=1e3
-        #plt.plot(1e3*mpm["disp"].values,maxload*mpm["plastic"].values/maxp,label="",marker="x",ls="--",c=l[0].get_color())
-        #plt.plot(1e3*mpm["disp"].values,maxload*mpm["damage"].values/maxd,label="",marker="o",ls="--",c=l[0].get_color())
 plt.xlabel("Displacement (mm)")
 plt.ylabel("Shear stress (kPa)")
 plt.legend(names)
 plt.tight_layout()
+# plt.savefig("load-disp.pgf")
 plt.savefig("load-disp.pdf")
-# for i in folders:
-#     print("loading folder: ",i)
-#     mpm = pd.read_csv("./{}/disp.csv".format(i))
-#     plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
-# plt.xlabel("Displacement (mm)")
-# plt.ylabel("Load (N)")
-# plt.legend()
-# plt.savefig("load-disp-{}.pdf".format(unique_id))
 
 surcharge = []
 peak = []
@@ -163,6 +159,21 @@ for f in folders:
         # plt.scatter(load,r)
         # plt.scatter(load,p)
 
+
+def plot_text_on_line(xpos,angle,c,offset_distance,text):
+    ax = plt.gca()
+    offsets = ax.transData.inverted().transform(ax.transAxes.transform((xpos,0)))
+    xpos = offsets[0]
+    m = np.tan(angle * np.pi/180)
+    offset_dist_screen = offset_distance
+    angle_o = angle + 90
+    delta = ax.transData.inverted().transform(ax.transAxes.transform((offset_dist_screen * np.cos(angle_o * np.pi/180), offset_dist_screen * np.sin(angle_o * np.pi/180))))
+    plt.text(xpos + delta[0], c + (xpos*m) + delta[1],
+             text,
+             rotation=angle,
+             rotation_mode='anchor',
+             transform_rotates_text=True)
+
 if len(peak) > 0:
     peak = [x for y, x in sorted(zip(surcharge, peak))]
     residual = [x for y, x in sorted(zip(surcharge, residual))]
@@ -171,29 +182,35 @@ if len(peak) > 0:
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     colour=colors[0]
     m,b = np.polyfit(surcharge, peak, 1)
+    plt.xlim([0,500e3])
+    plt.ylim([0,500e3])
     #unique_id = "D_res = "+unique_id.split("_")[-1]
-    plt.scatter(surcharge,peak,label="Peak - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3),color=colour)
+    plt.scatter(surcharge,peak,color=colour,label="Peak point")
     #p = plt.plot(surcharge,peak,color=colour)
-    plt.axline((0,b),slope=m,c=colour,ls="--")
+    #plt.axline((0,b),slope=m,c=colour,ls="--",label="{:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3))
+    plt.axline((0,b),slope=m,c=colour,ls="--",label="Peak envelope".format(np.arctan(m)*180/np.pi,b*1e-3))
 
     # m,b = np.polyfit(surcharge, residual, 1)
     # plt.scatter(surcharge,residual,label="Residual - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3),color=colour,marker="x")
     # #r = plt.plot(surcharge,residual,color=colour,ls="--")
     # plt.axline((0,b),slope=m,c=colour,ls="--")
+    ax = plt.gca()
 
+
+    plot_text_on_line(0.3,30,0,0.03,"$\phi = \SI{30}{\degree}$ - c = 0 kPa")
+    plot_text_on_line(0.10,42,131e3,0.03,"$\phi = \SI{42}{\degree}$ - c = 131 kPa")
     plt.axline((0,0),slope=np.tan(30 * np.pi/180),ls="-")
     plt.axline((0,131e3),slope=np.tan(42 * np.pi/180),ls="-")
     ticformat = ticker.FuncFormatter(lambda x,pos: "{0:g}".format(x*1e-3))
     plt.gca().xaxis.set_major_formatter(ticformat)
     plt.gca().yaxis.set_major_formatter(ticformat)
-    plt.xlim([0,500e3])
-    plt.ylim([0,500e3])
     #arror = {"arrowstyle":"simple"}
     #plt.annotate("{:.2f} deg, {:.2f} kPa".format(42,131),(155e3,271e3),(0.2,0.80),textcoords="figure fraction",arrowprops=arrow,fontsize=8)
     #plt.annotate("{:.2f} deg, {:.2f} kPa".format(42,131),(155e3,271e3),(0.2,0.80),textcoords="figure fraction",arrowprops=arrow,fontsize=8)
     plt.xlabel("Normal load (kPa)")
     plt.ylabel("Shear stress (kPa)")
-    plt.legend()
+    plt.legend(loc="lower right")
     plt.tight_layout()
     plt.savefig("frictional.pdf")
+    # plt.savefig("frictional.pgf")
 plt.show()

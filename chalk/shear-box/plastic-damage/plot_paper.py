@@ -1,11 +1,11 @@
 import matplotlib as mpl
+mpl.use("pgf")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 import os
 import numpy as np
 import re
-#mpl.use("pdf")
 
 from scipy import integrate
 
@@ -24,6 +24,11 @@ mpl.rcParams.update(
         "font.family": "serif",
         "text.usetex": True,
         "pgf.rcfonts": False,
+        "pgf.preamble": "\n".join([
+        r"\usepackage[utf8]{inputenc}",
+        r"\usepackage[T1]{fontenc}",
+        r"\usepackage[detect-all]{siunitx}",
+        ])
     }
 )
 width = 0.5*5.90666
@@ -42,6 +47,7 @@ def extract_vals(f):
 top_dir = "./data/"
 regex = re.compile(r'^output-.*')
 folders = list(filter(regex.search,os.listdir(top_dir)))
+print(folders)
 names = folders
 folders = [
         "output-16.0_0.5_2_1.0_0.0_0.99-100000.0",
@@ -77,11 +83,11 @@ for i in folders:
     if len(mpm["load"]) > 0:
         #if load_zeroing:
         #    mpm["load"] = mpm["load"] - mpm["load"].values[0]
-        l=plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
+        #l=plt.plot(1e3*mpm["disp"].values,(1e-3/0.06)*mpm["load"].values,label=i,marker=".")
         maxload = (1e-3/0.06)*mpm["load"].max()
-plt.xlabel("Displacement (mm)")
-plt.ylabel("Shear stress (kPa)")
-plt.legend(names)
+#plt.xlabel("Displacement (mm)")
+#plt.ylabel("Shear stress (kPa)")
+#plt.legend(names)
 
 fig = plt.figure(figsize=(width,height),dpi=200)
 for i in folders:
@@ -137,6 +143,21 @@ for f in folders:
         # plt.scatter(load,r)
         # plt.scatter(load,p)
 
+
+def plot_text_on_line(xpos,angle,c,offset_distance,text):
+    ax = plt.gca()
+    offsets = ax.transData.inverted().transform(ax.transAxes.transform((xpos,0)))
+    xpos = offsets[0]
+    m = np.tan(angle * np.pi/180)
+    offset_dist_screen = offset_distance
+    angle_o = angle + 90
+    delta = ax.transData.inverted().transform(ax.transAxes.transform((offset_dist_screen * np.cos(angle_o * np.pi/180), offset_dist_screen * np.sin(angle_o * np.pi/180))))
+    plt.text(xpos + delta[0], c + (xpos*m) + delta[1],
+             text,
+             rotation=angle,
+             rotation_mode='anchor',
+             transform_rotates_text=True)
+
 if len(peak) > 0:
     peak = [x for y, x in sorted(zip(surcharge, peak))]
     residual = [x for y, x in sorted(zip(surcharge, residual))]
@@ -145,23 +166,25 @@ if len(peak) > 0:
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
     colour=colors[0]
     m,b = np.polyfit(surcharge, peak, 1)
+    plt.xlim([0,500e3])
+    plt.ylim([0,500e3])
     #unique_id = "D_res = "+unique_id.split("_")[-1]
-    plt.scatter(surcharge,peak,label="Peak - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3),color=colour)
-    #p = plt.plot(surcharge,peak,color=colour)
     plt.axline((0,b),slope=m,c=colour,ls="--")
+    plt.scatter(surcharge,peak,label="Peak point",color=colour)
+    print("Peak - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3))
+    #p = plt.plot(surcharge,peak,color=colour)
 
     m,b = np.polyfit(surcharge, residual, 1)
-    plt.scatter(surcharge,residual,label="Residual - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3),color=colour,marker="x")
+    plt.axline((0,b),slope=m,c="C1",ls="--")
+    plt.scatter(surcharge,residual,label="Residual point",color="C1",marker="x")
+    print("Residual - {:.2f} deg, {:.2f} kPa".format(np.arctan(m)*180/np.pi,b*1e-3))
     #r = plt.plot(surcharge,residual,color=colour,ls="--")
-    plt.axline((0,b),slope=m,c=colour,ls="--")
 
     plt.axline((0,0),slope=np.tan(30 * np.pi/180),ls="-")
     plt.axline((0,131e3),slope=np.tan(42 * np.pi/180),ls="-")
     ticformat = ticker.FuncFormatter(lambda x,pos: "{0:g}".format(x*1e-3))
     plt.gca().xaxis.set_major_formatter(ticformat)
     plt.gca().yaxis.set_major_formatter(ticformat)
-    plt.xlim([0,500e3])
-    plt.ylim([0,500e3])
     plt.xlabel("Normal load (kPa)")
     plt.ylabel("Shear stress (kPa)")
     plt.legend()

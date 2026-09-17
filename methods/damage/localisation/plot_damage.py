@@ -132,8 +132,8 @@ def plot_2d(dir_name,i):
 
 def plot_3d(dir_name,ivals):
     odir = "./data/{}/".format(dir_name)
-    width = 1*5.90666
-    height = width / 1.4
+    width = 0.5*5.90666
+    height = width / 1.7
     fig = plt.figure(figsize=(width,height))
     plt.clf()
     plt.gcf().add_subplot(projection='3d',computed_zorder=True)
@@ -196,9 +196,8 @@ def plot_3d_surface(odir,ivals):
 def weight_function(dist,L):
     return np.power(1-np.power(np.minimum(np.abs(dist),L)/L,2),2)
 
-width = 1*5.90666
-height = width / 1.4
-fig =plt.figure(figsize=(width,height))
+width = 0.75*5.90666
+height = width / 1.5
 # get_plot(10)
 folder_list = os.listdir("./data/")
 print(folder_list)
