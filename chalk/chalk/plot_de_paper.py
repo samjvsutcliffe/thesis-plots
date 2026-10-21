@@ -21,8 +21,10 @@ height = width / 1.618
 #     print("{}: {}".format(i,out))
 
 # output_dir = chalk_dir + "./{}/".format(output_list[int(input())]) 
-chalk_dir ="./"
-output_dir = "/mnt/c/Temp/ham-chalk-rl/output-0.16666666666666666_F_NIL_R_T/"
+chalk_dir = "./data/"
+output_dir =chalk_dir+"example-gf_48/"
+# chalk_dir ="./"
+# output_dir = "/mnt/c/Temp/ham-chalk-rl/output-0.16666666666666666_F_NIL_R_T/"
 df = pd.read_csv(output_dir+"timesteps.csv")
 
 with open(output_dir+"./settings.json") as f:
@@ -61,6 +63,8 @@ for i in range(len(df)-1):
             quasi_point = None
 if quasi_point:
     plt.axvspan(quasi_point,time[i],alpha=0.25,color="black")
+
+plt.axvspan(0,0,alpha=0.25,color="black",label="Collapse stage")
 
 plt.xlabel("Time (s)")
 lines, labels = ax.get_legend_handles_labels()

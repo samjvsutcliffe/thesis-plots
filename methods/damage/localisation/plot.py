@@ -43,6 +43,11 @@ def calculate_gf(disp,load):
 top_dir = "./data/"
 regex = re.compile(r'^output.*')
 folders = list(filter(regex.search,os.listdir(top_dir)))
+
+folders = ["./output-standard/",
+           "./output-ll/",
+           "./output-ll-standard/",
+           "./output-ekl/",]
 def get_load(filename):
     mpm = pd.read_csv(top_dir+filename)
     mpm["disp"] = mpm["disp"]
@@ -50,7 +55,7 @@ def get_load(filename):
     return mpm
 
 
-folders.sort()
+# folders.sort()
 print(folders)
 
 for i in folders:
@@ -63,6 +68,7 @@ plt.xlabel("Displacement (mm)")
 plt.ylabel("Load (N)")
 #plt.legend()
 # plt.legend(["Coarse","Medium","Fine"])
-plt.legend(["Eikonal localisation","Novel damage localisation", "Standard damage localisation", "Constant length"])
+# plt.legend(["Eikonal localisation","Novel damage localisation", "Standard damage localisation", "Constant length"])
+plt.legend([ "Constant length","Double-average damage localisation", "Standard damage localisation","Eikonal localisation"])
 plt.savefig("paper.pdf")
 plt.show()

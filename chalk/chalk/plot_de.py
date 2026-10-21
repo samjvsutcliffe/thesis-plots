@@ -3,8 +3,8 @@ import pandas as pd
 import json
 import os,re
 
-chalk_dir ="/nobackup/rmvn14/ham-chalk-conv/" 
-output_regex = re.compile("output*")                                 
+chalk_dir ="./data/example-gf_48/"
+output_regex = re.compile("output*")
 output_list = list(filter(output_regex.match,os.listdir(chalk_dir)))
 output_list.sort()
 for i,out in enumerate(output_list):                                    

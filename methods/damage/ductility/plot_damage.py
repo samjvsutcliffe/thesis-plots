@@ -1,0 +1,181 @@
+import matplotlib as mpl
+#mpl.use('pdf')
+#mpl.use("pgf")
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
+from matplotlib import cm
+import mpmplotter
+import mpmplotter.load
+import mpmplotter.plot
+import re
+import os
+import json
+import numpy as np
+import pandas as pd
+import json
+import sys
+from vtk import vtkUnstructuredGridReader
+from vtk.util import numpy_support as VN
+from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
+from matplotlib import cm
+from multiprocessing import Pool
+
+top_dir = "./data-ll/"
+
+
+plt.style.use("seaborn-paper")
+plt.rc('font', family='serif', serif='Times')
+plt.rc('xtick', labelsize=8)
+plt.rc('ytick', labelsize=8)
+plt.rc('axes', labelsize=8)
+
+mpl.rcParams.update(
+    {
+        "pgf.texsystem": "pdflatex",
+        "font.family": "serif",
+        "text.usetex": True,
+        "pgf.rcfonts": False,
+        'figure.constrained_layout.use':True
+    }
+)
+
+
+
+import subprocess
+
+plt.rc('font', family='serif', serif='Times')
+# plt.rc('text', usetex=True)
+plt.rc('xtick', labelsize=8)
+plt.rc('ytick', labelsize=8)
+plt.rc('axes', labelsize=8)
+width = 3.487
+height = width / 1.618
+
+def get_damage(output_dir,i):
+    data = mpmplotter.load.load_folder("./{}/".format(output_dir))
+    df = mpmplotter.load.get_data_all(data["folder"],data["frames"][i],colour_name="damage",extract_vals=["damage","damage-ybar","disp_x"])
+    x = []
+    d = []
+    dy = []
+    for a_x, dx,lx,ly,damage,damage_ybar in zip(df["coord_x"],
+                                     df["disp_x"],
+                                     df["lx"],
+                                     df["ly"],
+                                     df["damage"],
+                                     df["damage-ybar"]):
+        x.append(a_x-dx)
+        d.append(damage)
+        dy.append(damage_ybar)
+    return (x,d,dy)
+plt.close("all")
+def plot_2d(dir_name,i):
+    # plt.clf()
+    # fig =plt.figure(figsize=(width,height))
+    plt.xlim(0,10)
+    #plt.ylim(0,1.1)
+    #(x,d,dy) = get_damage("./data/output-1/",i)
+    #plt.plot(x,d,marker="o")
+    #(x,d,dy) = get_damage("./data/output-2/",i)
+    #plt.plot(x,d,marker="o")
+    (x,d,dy) = get_damage("{}/{}/".format(top_dir,dir_name),i)
+    plt.plot(x,d,marker="o",label=dir_name)
+    x = np.array(x)
+    d = np.array(d)
+    # plt.plot(x,weight_function(x-5.0,1*1.0)*np.max(d))
+    plt.xlabel("Reference position (m)")
+    plt.ylabel("Damage")
+    # plt.savefig("paper_2d_{}.pdf".format(dir_name))
+    # plt.show()
+
+def plot_3d(dir_name,ivals):
+    odir = "./data-/{}/".format(dir_name)
+    width = 0.5*5.90666
+    height = width / 1.7
+    fig = plt.figure(figsize=(width,height))
+    plt.clf()
+    plt.gcf().add_subplot(projection='3d',computed_zorder=True)
+    ax = plt.gca()
+    ax.view_init(azim=-130,elev=20,vertical_axis="y")
+    # plt.xlim(0,10)
+    # plt.ylim(0,1.1)
+    x_v = []
+    d_v = []
+    z_v = []
+    for i in reversed(ivals):
+        (x,d,dy) = get_damage(odir,i)
+        plt.plot(x,d,zs=i,marker="o",c="black")
+        # (x,d,dy) = get_damage("./data/output-2/",i)
+        # plt.plot(x,d,zs=i,marker="o",c="blue")
+        # (x,d,dy) = get_damage("./data/output-4/",i)
+        # plt.plot(x,d,zs=i,marker="o",c="orange")
+
+    plt.xlabel("Reference position (m)")
+    plt.ylabel("Damage")
+    ax.set_zlabel("Load step")
+    plt.savefig("./paper_3d_{}.pgf".format(dir_name))
+    # plt.show()
+
+
+def plot_3d_surface(odir,ivals):
+    fig =plt.figure(figsize=(width,height))
+    plt.gcf().add_subplot(projection='3d',computed_zorder=True)
+    ax = plt.gca()
+    ax.view_init(azim=-130,elev=10,vertical_axis="y")
+    # plt.xlim(0,10)
+    # plt.ylim(0,1.1)
+    x_v = []
+    d_v = []
+    z_v = []
+    # odir = "./data/output-1/"
+    (x,d,dy) = get_damage(odir,0)
+    ivals_array = np.array(ivals)
+    print(x)
+    print(ivals_array)
+    X,Y = np.meshgrid(x,ivals_array)
+    Z = np.zeros((len(ivals_array),len(x)))
+    for iv,i in enumerate(ivals):
+        (x,d,dy) = get_damage(odir,i)
+        for j,dv in enumerate(d):
+            Z[iv,j] = dv
+        #plt.plot(x,d,zs=i,marker="o",c="black")
+        # (x,d,dy) = get_damage("./data/output-2/",i)
+        # plt.plot(x,d,zs=i,marker="o",c="blue")
+        # (x,d,dy) = get_damage("./data/output-4/",i)
+        # plt.plot(x,d,zs=i,marker="o",c="orange")
+    print("{} {} {}".format(X.shape,Y.shape,Z.shape))
+    ax.plot_wireframe(X,Z,Y)
+    plt.xlabel("Reference position (m)")
+    plt.ylabel("Damage")
+    ax.set_zlabel("Load step")
+    plt.savefig("damage_3d_{}.pdf")
+    # plt.show()
+
+def weight_function(dist,L):
+    return np.power(1-np.power(np.minimum(np.abs(dist),L)/L,2),2)
+
+width = 0.75*5.90666
+height = width / 1.5
+# get_plot(10)
+folder_list = os.listdir(top_dir)
+print(folder_list)
+#folder_list = ['output-standard','output-ll',  'output-ll-standard', 'output-ekl']
+fig =plt.figure(figsize=(width,height))
+for o in folder_list:
+    plot_2d(o,-1)
+plt.legend()
+#plt.legend(["Constant length", "Novel damage localisation", "Standard damage localisation", "Eikonal localisation"])
+plt.savefig("fig_damage.pdf")
+#plot_3d([0, 9, 19, 29, 39, 49])
+# plot_3d("output-ll",[0, 9, 19, 29, 39, 49])
+# plot_3d("output-ekl",[0, 9, 19, 29, 39, 49])
+# plot_3d("output-standard",[0, 9, 19, 29, 39, 49])
+plt.show()
+# plot_3d_surface([x for x in range(0,49,2)])

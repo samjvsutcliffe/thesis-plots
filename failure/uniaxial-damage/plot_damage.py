@@ -112,7 +112,8 @@ def get_damage(output_dir,i):
     return (x,d,dy)
 plt.close("all")
 def plot_2d(i):
-    plt.clf()
+    #   plt.clf()
+    fig =plt.figure(figsize=(width,height))
     plt.xlim(0,10)
     plt.ylim(0,1.1)
     (x,d,dy) = get_damage("./data/output-1/",i)
@@ -124,6 +125,7 @@ def plot_2d(i):
     plt.xlabel("Reference position (m)")
     plt.ylabel("Damage")
     plt.savefig("paper_2d.pgf")
+    plt.savefig("paper_2d.pdf")
     plt.show()
 
 def plot_3d(ivals):
@@ -151,6 +153,7 @@ def plot_3d(ivals):
     plt.ylabel("Damage")
     ax.set_zlabel("Load step")
     plt.savefig("paper_3d.pgf")
+    plt.savefig("paper_3d.pdf")
     plt.show()
 
 
@@ -191,7 +194,7 @@ width = 0.49*5.90666
 height = width / 1.4
 fig =plt.figure(figsize=(width,height))
 # get_plot(10)
-# plot_2d(49)
+plot_2d(-1)
 # plot_3d([0, 9, 19, 29, 39, 49])
-plot_3d([0, 9, 19, 29, 39, 49])
+plot_3d([0, 5, 10, 15, 20, 25])
 # plot_3d_surface([x for x in range(0,49,2)])

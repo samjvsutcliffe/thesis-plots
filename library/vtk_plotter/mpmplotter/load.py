@@ -62,6 +62,10 @@ def load_folder(folder):
     if os.path.isfile(settings_file):
         with open(settings_file) as f:
             settings = json.load(f)
+    timesteps_file = "{}/timesteps.csv".format(folder)
+    timesteps = pd.DataFrame()
+    if os.path.isfile(timesteps_file):
+        timesteps = pd.read_csv(timesteps_file)
 
     files = os.listdir(folder)
     finalcsv = re.compile("sim(_0+)?_\d*\.vtk")
@@ -70,5 +74,5 @@ def load_folder(folder):
     framenumbers = list(map(lambda x: framenumber_regex.findall(x)[-1],files_csvs))
     framenumbers.sort(key=int)
     files_csvs.sort(key=lambda x:int(framenumber_regex.findall(x)[-1]))
-    return {"folder":folder,"settings":settings,"files":files_csvs,"frames":framenumbers}
+    return {"folder":folder,"settings":settings,"files":files_csvs,"frames":framenumbers,"timesteps":timesteps}
 

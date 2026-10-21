@@ -25,6 +25,8 @@ from matplotlib.collections import PatchCollection
 from matplotlib import cm
 from multiprocessing import Pool
 
+top_dir = "./data/"
+
 
 plt.style.use("seaborn-paper")
 plt.rc('font', family='serif', serif='Times')
@@ -115,12 +117,12 @@ def plot_2d(dir_name,i):
     # plt.clf()
     # fig =plt.figure(figsize=(width,height))
     plt.xlim(0,10)
-    plt.ylim(0,1.1)
+    #plt.ylim(0,1.1)
     #(x,d,dy) = get_damage("./data/output-1/",i)
     #plt.plot(x,d,marker="o")
     #(x,d,dy) = get_damage("./data/output-2/",i)
     #plt.plot(x,d,marker="o")
-    (x,d,dy) = get_damage("./data/{}/".format(dir_name),i)
+    (x,d,dy) = get_damage("{}/{}/".format(top_dir,dir_name),i)
     plt.plot(x,d,marker="o",label=dir_name)
     x = np.array(x)
     d = np.array(d)
@@ -131,7 +133,7 @@ def plot_2d(dir_name,i):
     # plt.show()
 
 def plot_3d(dir_name,ivals):
-    odir = "./data/{}/".format(dir_name)
+    odir = "./data-/{}/".format(dir_name)
     width = 0.5*5.90666
     height = width / 1.7
     fig = plt.figure(figsize=(width,height))
@@ -199,12 +201,13 @@ def weight_function(dist,L):
 width = 0.75*5.90666
 height = width / 1.5
 # get_plot(10)
-folder_list = os.listdir("./data/")
+folder_list = os.listdir(top_dir)
 print(folder_list)
 folder_list = ['output-standard','output-ll',  'output-ll-standard', 'output-ekl']
 fig =plt.figure(figsize=(width,height))
 for o in folder_list:
     plot_2d(o,-1)
+# plt.legend()
 plt.legend(["Constant length", "Novel damage localisation", "Standard damage localisation", "Eikonal localisation"])
 plt.savefig("fig_damage.pdf")
 #plot_3d([0, 9, 19, 29, 39, 49])

@@ -59,7 +59,10 @@ def plot_interaction(dir_name):
     # inter_list = ["interaction_{}.csv".format(uid)]
     for i in inter_list[1::3*2]:
         interaction_data = pd.read_csv("./data/{}/{}".format(dir_name,i))
-        ax_inter.plot(interaction_data["x"].values,interaction_data["w"].values,ls="-",c="black")
+        int_x = interaction_data["x"].values
+        int_w = interaction_data["w"].values
+        ind = int_x.argsort()
+        ax_inter.plot(int_x[ind],int_w[ind],ls="-",c="black")
     # plt.title(topdir)
     ax.set_xlabel("Location (m)")
     ax.set_ylabel("Damage (m)")

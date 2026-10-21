@@ -23,8 +23,8 @@ height = width / 1.618
 
 # output_dir = chalk_dir + "./{}/".format(output_list[int(input())]) 
 #chalk_dir ="./"
-chalk_dir ="/nobackup/rmvn14/ham-chalk/" 
-output_dir =chalk_dir+"./output-paper-strong/"
+chalk_dir = "./data/"
+output_dir =chalk_dir+"example-gf_48/"
 df = pd.read_csv(output_dir+"timesteps.csv")
 
 with open(output_dir+"./settings.json") as f:
